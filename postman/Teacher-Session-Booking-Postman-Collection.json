@@ -1,0 +1,225 @@
+{
+  "info": {
+    "_postman_id": "b8e0d3c4-7a12-4d81-9b2e-6a4f5c8d9012",
+    "name": "Teacher Session Booking API",
+    "description": "Postman collection for the six APIs in the Teacher Session Booking backend assignment. Set teacherId, startTime, endTime and dateTimestamp before running the relevant requests. Create User and Create Session requests automatically save returned IDs when the response contains data._id.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Create User",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fullName\": \"Rahul Kumar\",\n  \"email\": \"rahul.{{$timestamp}}@example.com\",\n  \"phone\": \"9876543210\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/users",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "users"
+          ]
+        },
+        "description": "Creates a user. The test script stores data._id as the collection variable userId."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "  const body = pm.response.json();",
+              "  if (body.data && body.data._id) pm.collectionVariables.set('userId', body.data._id);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Create Session",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"teacherId\": \"{{teacherId}}\",\n  \"startTime\": \"{{startTime}}\",\n  \"endTime\": \"{{endTime}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/sessions",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "sessions"
+          ]
+        },
+        "description": "Requires a teacher document already present in MongoDB. Set teacherId, startTime and endTime collection variables. Saves returned data._id as sessionId."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "  const body = pm.response.json();",
+              "  if (body.data && body.data._id) pm.collectionVariables.set('sessionId', body.data._id);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Get Available Sessions",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/sessions/available?dateTimestamp={{dateTimestamp}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "sessions",
+            "available"
+          ],
+          "query": [
+            {
+              "key": "dateTimestamp",
+              "value": "{{dateTimestamp}}"
+            }
+          ]
+        },
+        "description": "Returns AVAILABLE sessions for the date represented by dateTimestamp (Unix timestamp in milliseconds)."
+      }
+    },
+    {
+      "name": "4. Book Session",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"{{userId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/sessions/{{sessionId}}/book",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "sessions",
+            "{{sessionId}}",
+            "book"
+          ]
+        },
+        "description": "Books the available session for the user created in request 1."
+      }
+    },
+    {
+      "name": "5. Complete Session",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/sessions/{{sessionId}}/complete",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "sessions",
+            "{{sessionId}}",
+            "complete"
+          ]
+        },
+        "description": "Marks the booked session as COMPLETED. Run after Book Session."
+      }
+    },
+    {
+      "name": "6. Get User Sessions",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/users/{{userId}}/sessions",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "users",
+            "{{userId}}",
+            "sessions"
+          ]
+        },
+        "description": "Returns the user's upcomingSessions and completedSessions."
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000"
+    },
+    {
+      "key": "teacherId",
+      "value": "REPLACE_WITH_EXISTING_TEACHER_OBJECT_ID"
+    },
+    {
+      "key": "startTime",
+      "value": "2026-11-25T10:00:00.000Z"
+    },
+    {
+      "key": "endTime",
+      "value": "2026-11-25T11:00:00.000Z"
+    },
+    {
+      "key": "dateTimestamp",
+      "value": "1795564800000"
+    },
+    {
+      "key": "userId",
+      "value": "CREATE_USER_FIRST"
+    },
+    {
+      "key": "sessionId",
+      "value": "CREATE_SESSION_FIRST"
+    }
+  ]
+}
